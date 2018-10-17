@@ -1,0 +1,5 @@
+bill_number,bill_id,api_uri,p1,p2
+H.R.5444,hr5444-115,https://api.propublica.org/congress/v1/115/bills/hr5444.json,0.0927845036319612,0.0012324455205811144
+H.R.5445,hr5445-115,https://api.propublica.org/congress/v1/115/bills/hr5445.json,0.08154326923076918,0.010620192307692301
+H.R.5192,hr5192-115,https://api.propublica.org/congress/v1/115/bills/hr5192.json,0.08864285714285706,0.003921428571428572
+H.R.4790,hr4790-115,https://api.propublica.org/congress/v1/115/bills/hr4790.json,0.3123101736972704,0.08667245657568243
