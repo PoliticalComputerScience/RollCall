@@ -1,0 +1,7 @@
+This directory will contain all the code for data compilation and processing, including any external API calls. 
+
+API keys:
+ProPublica:
+    npwl9Pn4rk2qFvIKOvzKbXH1AvM82Omi20tfyrFl
+
+
