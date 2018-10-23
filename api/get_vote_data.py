@@ -2,6 +2,8 @@ from utils import get_json
 import json, csv
 from datetime import date
 from math import sqrt
+import pandas as pd
+import itertools as it
 CHAMBERS = ["both", "house", "senate"]
 CURR_CONGRESS_START = "2017-01-03"
 
@@ -87,6 +89,70 @@ def extract_processed_data(file_name):
     with open(file_name) as json_data:
         votes = json.load(json_data)
     return votes
+
+
+""" Constructs a dictionary that maps congressmembers to how they voted on certain bills"""
+def get_member_votes(congress, chamber = "both"):
+  big_boy = get_congress_vote_roll_call(congress, chamber)
+  my_dict = {}
+  
+  for tuple1 in big_boy:
+
+    bill_ID = tuple1['bill_id']
+    positions = tuple1['positions']
+
+    for member_position in positions:
+
+      member_id = member_position["member_id"]
+      member_vote = member_position["vote_position"]
+
+      if (member_id in my_dict.keys()):
+          my_dict[member_id] += [(bill_ID, member_vote)]     
+      else:      
+        my_dict[member_id] = []     
+        my_dict[member_id] += [(bill_ID, member_vote)]
+  
+  return my_dict
+
+
+
+""" Constructs a set of all combinations of 2 members, storing:
+		1) How many bills they voted the same on
+		2) How many bills they both voted on
+	Then saves this as a csv file.
+"""
+def pair_similarity(congress, chamber='both'):
+	member_pairs = set()
+	member_votes = get_member_votes(congress, chamber)
+	
+	for m in it.combinations(member_votes.keys(), 2):	
+		
+		if m[0] == m[1]:
+			continue
+		#[(bill_id, vote), (bill_id, vote)...]
+		m1 = member_votes[m[0]]
+		m2 = member_votes[m[1]]
+		
+		# tables of [(bill_id, vote),(bill_id, vote) ...]
+		d1 = pd.DataFrame(m1, columns=['bill_id1','vote1'])
+		d2 = pd.DataFrame(m2, columns=['bill_id2','vote2'])
+
+		d3 = d1.merge(d2, how="inner", left_on='bill_id1', right_on='bill_id2')
+		vs = d3.loc[d3['vote1'] == d3['vote2'],:].shape[0]
+		vt = d3.shape[0]
+
+		ntuple = (m[0], m[1], vs, vt)
+		member_pairs.add(ntuple)
+
+	# store_as_csv(member_pairs)
+
+	return member_pairs
+
+
+# def store_as_csv(pairs)
+# 	dataframee = pd.DataFrame(pairs, columns=['member_1', 'member_2', 'votes_same',''])
+# 	dataframee.to_csv('Pairs')
+
 
 
 
