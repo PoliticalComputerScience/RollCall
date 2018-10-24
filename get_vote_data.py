@@ -1,4 +1,4 @@
-from utils import get_json
+from utils import get_json, to_csv
 from datetime import date
 import pandas as pd
 import itertools as it
@@ -130,6 +130,10 @@ def pair_similarity(congress, chamber='both'):
 
 	return member_pairs
 
-# def store_as_csv(pairs)
-# 	dataframee = pd.DataFrame(pairs, columns=['member_1', 'member_2', 'votes_same',''])
-# 	dataframee.to_csv('Pairs')
+"""
+Aggregates pairs for the congress and chamber, writing data to the file
+<congress>_<chamber>.csv
+"""
+def write_pairs(congress, chamber='both'):
+    pairs = pair_similarity(congress, chamber)
+    to_csv(['member_a', 'member_b', 'votes_same', 'bills_same'], pairs, str(congress) + '_' + chamber)

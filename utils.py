@@ -1,8 +1,11 @@
-""" This file contains get_json(api_url) which returns the dictionary form of
-JSON object returned by the ProPublica API. """
+"""
+This file contains get_json(api_url) which returns the dictionary form of
+JSON object returned by the ProPublica API as well as functions for writing to
+and from csv files.
+"""
 
 from urllib.request import Request, urlopen
-import json
+import json, csv
 API_KEY = "npwl9Pn4rk2qFvIKOvzKbXH1AvM82Omi20tfyrFl"
 
 def get_json(api_url):
@@ -15,3 +18,10 @@ def get_json(api_url):
 		print("invalid query: " + res["status"])
 		return None
 	return res
+
+""" Given header and list of tuples, writes to csv file <name>.csv """
+def to_csv(header, data, name):
+    with open(name + ".csv",'w') as out:
+        csv_out=csv.writer(out)
+        csv_out.writerow(header)
+        csv_out.writerows(data)
