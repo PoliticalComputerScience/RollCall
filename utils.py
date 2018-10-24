@@ -3,7 +3,7 @@ JSON object returned by the ProPublica API. """
 
 from urllib.request import Request, urlopen
 import json
-API_KEY = "dtoa6UrIaAQBqiXOdBPmFeS36VyVxxorxqU4mXkv"
+API_KEY = "npwl9Pn4rk2qFvIKOvzKbXH1AvM82Omi20tfyrFl"
 
 def get_json(api_url):
 	if not api_url:
