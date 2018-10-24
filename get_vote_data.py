@@ -1,7 +1,5 @@
 from utils import get_json
-import json, csv
 from datetime import date
-from math import sqrt
 import pandas as pd
 import itertools as it
 CHAMBERS = ["both", "house", "senate"]
@@ -79,20 +77,6 @@ def get_congress_vote_roll_call(congress, chamber="both"):
     roll_call_list = get_year_vote_roll_call(year, chamber) + get_year_vote_roll_call(year + 1, chamber)
     return roll_call_list
 
-""" Processes and stores vote roll call data (zipped together with dw_nominate scores) to file. This is to save us from having to always make API calls. """
-def store_vote_data(unprocessed_data, file_name):
-    member_map = extract_member_map()
-    processed = zip_dw_nom(unprocessed_data, member_map)
-    with open(file_name, 'w') as f:
-        json.dump(processed, f)
-
-""" Extracts processed vote data from file to be scored with polarization formula. """
-def extract_processed_data(file_name):
-    with open(file_name) as json_data:
-        votes = json.load(json_data)
-    return votes
-
-
 """ Constructs a dictionary that maps congressmembers to how they voted on certain bills"""
 def get_member_votes(congress, chamber="both"):
   big_boy = get_congress_vote_roll_call(congress, chamber)
@@ -115,12 +99,11 @@ def get_member_votes(congress, chamber="both"):
 
   return my_dict
 
-
-
 """ Constructs a set of all combinations of 2 members, storing:
 		1) How many bills they voted the same on
 		2) How many bills they both voted on
     Should call on either Senate or House, both may not be entirely useful.
+    Returns a list of tuples (member0, member1, votes_same, bills_same)
 """
 def pair_similarity(congress, chamber='both'):
 	member_pairs = set()
@@ -145,10 +128,7 @@ def pair_similarity(congress, chamber='both'):
 		ntuple = (m[0], m[1], vs, vt)
 		member_pairs.add(ntuple)
 
-	# store_as_csv(member_pairs)
-
 	return member_pairs
-
 
 # def store_as_csv(pairs)
 # 	dataframee = pd.DataFrame(pairs, columns=['member_1', 'member_2', 'votes_same',''])
