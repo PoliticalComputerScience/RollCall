@@ -25,3 +25,11 @@ def to_csv(header, data, name):
         csv_out=csv.writer(out)
         csv_out.writerow(header)
         csv_out.writerows(data)
+
+""" Reads a csv and returns a list of tuples. """
+def from_csv(filename):
+    data = []
+    with open(filename, 'r') as f:
+        reader = csv.reader(f)
+        data = list(reader)
+    return data[1:] #removes header
