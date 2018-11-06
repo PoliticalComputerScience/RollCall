@@ -26,18 +26,6 @@ def uri_to_roll_call(uri_list):
         roll_calls.append(d)
     return roll_calls
 
-def get_vote_info(start_date, end_date, chamber="both"):
-    assert chamber in CHAMBERS, chamber + " is not an acceptable chamber"
-    vote_info = get_json("https://api.propublica.org/congress/v1/" + chamber + "/votes/" + start_date + "/" + end_date + ".json")
-    assert vote_info and vote_info["results"], "empty vote_info"
-    return vote_info["results"]
-
-""" Gets the roll call information for the votes in the provided time interval. The time interval must be less than 1 month. NOTE: NOT WORKING """
-def get_vote_roll_call(start_date, end_date, chamber="both"):
-    vote_info = get_vote_info(start_date, end_date, chamber)
-    uri_list = filter_uri(vote_info["votes"])
-    return uri_to_roll_call(uri_list)
-
 """ Helper function for get_year_vote_roll_call() """
 def get_year_vote_info(year=2018, chamber="both"):
     assert type(year) == int and year <= 2018 and year > 1900 and chamber in CHAMBERS
