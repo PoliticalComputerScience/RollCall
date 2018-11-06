@@ -42,22 +42,13 @@ def get_year_vote_info(year=2018, chamber="both"):
         month_to_vote_info[i] = month_vote_info["results"]
     return month_to_vote_info
 
-""" Gets the roll call information for the votes in the given year. """
+""" Gets the roll call information for the votes in the given year using get_year_vote_info """
 def get_year_vote_roll_call(year=2018, chamber="both"):
     vote_info = get_year_vote_info(year, chamber)
     uri_list = []
     for i in range(1, 13):
         uri_list += filter_uri(vote_info[i]["votes"])
     return uri_to_roll_call(uri_list)
-
-def get_congress_vote_info(congress, chamber="both"):
-    assert chamber in CHAMBERS and type(congress) == int and congress <= 115 and congress >= 1
-    offset = 115 - congress
-    year = 2017 - offset * 2
-    congress_vote_info = {}
-    congress_vote_info[1] = get_year_vote_info(year, chamber)
-    congress_vote_info[2] = get_year_vote_info(year + 1, chamber)
-    return congress_vote_info
 
 """ Gets the roll call information for the votes in the given congress. """
 def get_congress_vote_roll_call(congress, chamber="both"):
