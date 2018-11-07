@@ -12,7 +12,7 @@ def filter_uri(votes):
     uri_list = []
     for v in votes:
         if (("bill" in v) and ("On Passage" in v["question"])):
-            uri_list.append(v["vote_uri"])
+            uri_list.append(v['vote_uri'])
     return uri_list
 
 """ Converts a list of URI's into a list of {'bill_id':bill_id, 'positions':[pos0, pos1, ...]} corresponding to each URI. """
@@ -50,16 +50,29 @@ def get_year_vote_roll_call(year=2018, chamber="both"):
         uri_list += filter_uri(vote_info[i]["votes"])
     return uri_to_roll_call(uri_list)
 
-""" Gets the roll call information for the votes in the given congress. """
+"""
+Gets the roll call and sponsorship information for the votes in the given congress.
+Returns of list of dictionarys {'bill_id': bill_id, 'positions': positions, 'sponsor_list': sponsor_list}
+"""
 def get_congress_vote_roll_call(congress, chamber="both"):
     offset = 115 - congress
     year = 2017 - offset * 2
     roll_call_list = get_year_vote_roll_call(year, chamber) + get_year_vote_roll_call(year + 1, chamber)
+    roll_call_sponsors = []
+    for roll_call in roll_call_list:
+        bill_id = roll_call['bill_id']
+        sponsors_uri = 'https://api.propublica.org/congress/v1/' + str(congress) + '/bills/' + bill_id.split('-')[0] + '/cosponsors.json'
+        bill = get_json(sponsors_uri)
+        if bill:
+            sponsor_list = [bill['results'][0]['sponsor_id']]
+            for cosponsor in bill['results'][0]['cosponsors']:
+                sponsor_list.append(cosponsor['cosponsor_id'])
+            roll_call['sponsor_list'] = sponsor_list
     return roll_call_list
 
 """ Constructs a dictionary that maps congressmembers to how they voted on certain bills"""
-def get_member_votes(congress, chamber="both"):
-  big_boy = get_congress_vote_roll_call(congress, chamber)
+def get_member_votes(roll_calls):#congress, chamber="both"):
+  big_boy = roll_calls#get_congress_vote_roll_call(congress, chamber)
   my_dict = {}
 
   for tuple1 in big_boy:
@@ -85,9 +98,9 @@ def get_member_votes(congress, chamber="both"):
     Should call on either Senate or House, both may not be entirely useful.
     Returns a list of tuples (member0, member1, votes_same, bills_same)
 """
-def pair_similarity(congress, chamber='both'):
+def pair_similarity(member_votes):#congress, chamber='both'):
 	member_pairs = set()
-	member_votes = get_member_votes(congress, chamber)
+	#member_votes = get_member_votes(congress, chamber)
 
 	for m in it.combinations(member_votes.keys(), 2):
 
@@ -115,5 +128,14 @@ Aggregates pairs for the congress and chamber, writing data to the file
 <congress>_<chamber>.csv
 """
 def write_pairs(congress, chamber='both'):
-    pairs = pair_similarity(congress, chamber)
-    to_csv(['member_a', 'member_b', 'votes_same', 'bills_same'], pairs, str(congress) + '_' + chamber)
+    roll_calls = get_congress_vote_roll_call(congress, chamber)
+    member_votes = get_member_votes(roll_calls)
+    pairs = pair_similarity(member_votes)#congress, chamber)
+    new_pairs = []
+    for pair in pairs:
+        new_pair = list(pair) + [0]
+        for roll_call in roll_calls:
+            if (pair[0] in roll_call['sponsor_list'] and pair[1] in roll_call['sponsor_list']):
+                new_pair[4] += 1
+        new_pairs.append(new_pair)
+    to_csv(['member_a', 'member_b', 'votes_same', 'bills_same', 'mutual_sponsorships'], new_pairs, str(congress) + '_' + chamber)
