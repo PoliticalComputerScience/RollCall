@@ -57,7 +57,9 @@ def get_congress_vote_roll_call(congress, chamber="both"):
     roll_call_list = get_year_vote_roll_call(year, chamber) + get_year_vote_roll_call(year + 1, chamber)
     return roll_call_list
 
-""" Constructs a dictionary that maps congressmembers to how they voted on certain bills"""
+""" Constructs a dictionary that maps congressmembers to how they voted on certain bills
+@Param 
+"""
 def get_member_votes(congress, chamber="both"):
   big_boy = get_congress_vote_roll_call(congress, chamber)
   my_dict = {}
