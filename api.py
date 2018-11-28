@@ -84,9 +84,13 @@ def get_congress_vote_roll_call(congress, chamber="both"):
             roll_call['sponsor_list'] = sponsor_list
     return roll_call_list
 
-""" Constructs a dictionary that maps congressmembers to how they voted on certain bills"""
-def get_member_votes(roll_calls):#congress, chamber="both"):
-  big_boy = roll_calls#get_congress_vote_roll_call(congress, chamber)
+
+""" Constructs a dictionary that maps congressmembers to how they voted on certain bills
+@Param 
+"""
+def get_member_votes(congress, chamber="both"):
+  big_boy = get_congress_vote_roll_call(congress, chamber)
+
   my_dict = {}
 
   for tuple1 in big_boy:
