@@ -1,10 +1,24 @@
 #from utils import get_json, to_csv
 from utils import *
 from datetime import date
+from Pair import *
 import pandas as pd
 import itertools as it
 CHAMBERS = ["both", "house", "senate"]
 CURR_CONGRESS_START = "2017-01-03"
+
+"""
+Creates and returns a dictionary with pairs as values and their hashes as keys.
+"""
+def get_pairs(congress, chamber):
+    uri = "https://api.propublica.org/congress/v1/{}/{}/members.json".format(congress, chamber)
+    members = get_json(uri)['results'][0]['members']
+    pairs = dict()
+    for i in range(len(members)):
+        for j in range(i + 1, len(members)):
+            pair = Pair(members[i]['id'], members[j]['id'])
+            pairs[hash(pair)] = pair
+    return pairs
 
 """ Converts (and filters) a list of votes into a list of URI's for the votes corresponding to bills.
     TODO: Filter out the roll calls that we care about. """
@@ -92,50 +106,60 @@ def get_member_votes(roll_calls):#congress, chamber="both"):
 
   return my_dict
 
+
 """ Constructs a set of all combinations of 2 members, storing:
 		1) How many bills they voted the same on
 		2) How many bills they both voted on
     Should call on either Senate or House, both may not be entirely useful.
     Returns a list of tuples (member0, member1, votes_same, bills_same)
 """
-def pair_similarity(member_votes):#congress, chamber='both'):
-	member_pairs = set()
+def pair_similarity(member_votes, pairs):#congress, chamber='both'):
+	#member_pairs = set()
 	#member_votes = get_member_votes(congress, chamber)
 
-	for m in it.combinations(member_votes.keys(), 2):
+    for m in it.combinations(member_votes.keys(), 2):
 
-		if m[0] == m[1]:
-			continue
+        if m[0] == m[1]:
+            continue
 		#[(bill_id, vote), (bill_id, vote)...]
-		m1 = member_votes[m[0]]
-		m2 = member_votes[m[1]]
+        m1 = member_votes[m[0]]
+        m2 = member_votes[m[1]]
 
 		# tables of [(bill_id, vote),(bill_id, vote) ...]
-		d1 = pd.DataFrame(m1, columns=['bill_id1','vote1'])
-		d2 = pd.DataFrame(m2, columns=['bill_id2','vote2'])
+        d1 = pd.DataFrame(m1, columns=['bill_id1','vote1'])
+        d2 = pd.DataFrame(m2, columns=['bill_id2','vote2'])
 
-		d3 = d1.merge(d2, how="inner", left_on='bill_id1', right_on='bill_id2')
-		vs = d3.loc[d3['vote1'] == d3['vote2'],:].shape[0]
-		vt = d3.shape[0]
+        d3 = d1.merge(d2, how="inner", left_on='bill_id1', right_on='bill_id2')
+        vs = d3.loc[d3['vote1'] == d3['vote2'],:].shape[0]
+        vt = d3.shape[0]
 
-		ntuple = (m[0], m[1], vs, vt)
-		member_pairs.add(ntuple)
+        #ntuple = (m[0], m[1], vs, vt)
+        #member_pairs.add(ntuple)
+        hash = get_pair_hash(m[0], m[1])
+        try:
+            pairs[hash].data['votes_same'] = vs
+            pairs[hash].data['votes_total'] = vt
+        except KeyError:
+            print("Discrepancy in ProPublica member data")
 
-	return member_pairs
+
+	#return member_pairs
 
 """
 Aggregates pairs for the congress and chamber, writing data to the file
 <congress>_<chamber>.csv
 """
 def write_pairs(congress, chamber='both'):
+    pairs = get_pairs(congress, chamber) #creates dictionary mapping pair hashes to pairs
     roll_calls = get_congress_vote_roll_call(congress, chamber)
     member_votes = get_member_votes(roll_calls)
-    pairs = pair_similarity(member_votes)#congress, chamber)
-    new_pairs = []
-    for pair in pairs:
-        new_pair = list(pair) + [0]
+    pair_similarity(member_votes, pairs)#congress, chamber)
+    for hash, pair in pairs.items():
         for roll_call in roll_calls:
-            if (pair[0] in roll_call['sponsor_list'] and pair[1] in roll_call['sponsor_list']):
-                new_pair[4] += 1
-        new_pairs.append(new_pair)
+            if (pair.id_a in roll_call['sponsor_list'] and \
+            pair.id_b in roll_call['sponsor_list']):
+                pair.data['mutual_sponsorships'] += 1
+    #You can do further processing to the pairs here
+
+    new_pairs = [v.toTuple() for k, v in pairs.items()]
     to_csv(['member_a', 'member_b', 'votes_same', 'bills_same', 'mutual_sponsorships'], new_pairs, str(congress) + '_' + chamber)

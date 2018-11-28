@@ -1,34 +1,72 @@
+"""
+You can add metrics to this file. New metrics should take in a list of Pairs
+and output a dictionary mapping from pair -> metric_value. Once you write the
+function, add it to the metrics list defined above calculate_metric().
+"""
+
 from utils import *
-import * from statistics
+import statistics
+from Pair import *
 
-def weighted_sum(m1, m2, w1, w2):
-    return w1*m1 + w2*m2
-
-""" Calculates the metric using data from <filename> with the given weighted sums. """
-def metric(filename, naive_weight, sponsor_weight):
-    data = from_csv(filename)
-    naive = naive_metric(data)
-    sponsorship = sponsorship_metric(data)
-    pairs = []
-    for i in range(len(data)):
-        pairs.append((data[i][0], data[i][1], weighted_sum(naive[i][2], sponsorship[i][2], naive_weight, sponsor_weight)))
-    return pairs
-
-def naive_metric(tuples):
-	lst = []
-	for t in tuples:
-		lst = lst.append((t[0] , t[1] , t[2]/t[3]))
-	return lst
-
-def sponsorship_metric(input_list):
-    temp = [x[4] for x in input_list]
-    mid = median(temp)
-    new_list = [k / mid for k in temp]
-    result = [(input_list[y][0], input_list[y](1), input_list[y](2), input_list[y](3), new_list[y]) for y in range(len(input_list))]
+"""
+Given a list of pairs, a list of dictionaries mapping from pair -> metric_value,
+and a list of weights corresponding to the order of the list of dictionaries.
+Calculates and returns a weighted sum of the metrics for each pair and returns
+a new dictionary mapping from pair -> metric_value.
+"""
+def weighted_metric(pairs, metrics, weights):
+    assert len(metrics) == len(weights)
+    result = dict()
+    for p in pairs:
+        final = 0
+        for i in range(len(metrics)):
+            final += weights[i] * metrics[i].get(p)
+        result[p] = final
     return result
 
-""" Calculates metric and writes a list of tuples (member_a, member_b, ) """
-def calculate_metric(chamber, congress, naive_weight, sponsor_weight):
-    filename = chamber + '_' + congress + '.csv'
-    data = metric(filename, naive_weight, sponsor_weight)
-    to_csv(('member_a', 'member_b', 'metric'), data, chamber + '_' + congress + '_metric.csv')
+"""
+Calculates the naive metric for each pair. Takes in a list of pair objects.
+Outputs a dictionary mapping Pair -> naive_metric_value.
+"""
+def naive_metric(pairs):
+    def f(data):
+        return data['votes_same'] / (data['votes_total'] + 1)
+    result = dict()
+    for p in pairs:
+        result[p] = p.calc(f)
+    return result
+
+"""
+Calculates the sponsorship metric for each pair. Takes in a list of pairs.
+Outputs a dictionary mapping Pair -> sponsorship_metric_value.
+"""
+def sponsorship_metric(pairs):
+    def f(data):
+        return data.get('mutual_sponsorships')
+    result = dict()
+    vals = []
+    for p in pairs:
+        val = p.calc(f)
+        vals.append(val)
+        result[p] = val
+    median = statistics.median(vals)
+    for k in result.keys():
+        result[p] /= (median + 1)
+    return result
+
+metrics = [naive_metric, sponsorship_metric]
+
+"""
+Calculates metric and writes a list of tuples (member_a, member_b, metric)
+to file. Takes in a list of weights corresponding to the metrics array above.
+"""
+def calculate_metric(congress, chamber, weights):
+    filename = str(congress) + '_' + chamber + '.csv'
+    data = from_csv(filename)
+    pairs = [Pair(None, None, tup) for tup in data]
+    metric_list = [metric(pairs) for metric in metrics]
+    final_metric_values = weighted_metric(pairs, metric_list, weights)
+    new_filename = str(congress) + '_' + chamber + '_metric.csv'
+    new_header = ('member_a', 'member_b', 'metric')
+    data = [(pair.id_a, pair.id_b, metric) for pair, metric in final_metric_values.items()]
+    to_csv(new_header, data, new_filename)
