@@ -8,19 +8,23 @@ keys = ['votes_same', 'votes_total', 'mutual_sponsorships']
 
 class Pair:
 
-    def __init__(self, id1, id2, tup=None):
+    def __init__(self, id1, id2, name_1, name_2, tup=None):
         if not tup: #create Pair directly
             self.id_a = id1
             self.id_b = id2
+            self.name_a = name_1
+            self.name_b = name_2
             self.data = dict()
             for k in keys:
                 self.data[k] = 0
         else: #create Pair from tuple of data values (id_a, id_b, k_0, .., k_n)
             self.id_a = tup[0]
             self.id_b = tup[1]
+            self.name_a = tup[2]
+            self.name_b = tup[3]
             self.data = dict()
             for i in range(len(keys)):
-                self.data[keys[i]] = int(tup[i + 2])
+                self.data[keys[i]] = int(tup[i + 4])
 
     """ Equality is based on ID values. """
     def __eq__(self, other):
@@ -49,7 +53,7 @@ class Pair:
         return f(self.data)
 
     def toTuple(self):
-        return tuple([self.id_a, self.id_b] + [v for k, v in self.data.items()])
+        return tuple([self.id_a, self.id_b, self.name_a, self.name_b] + [v for k, v in self.data.items()])
 
 def get_pair_hash(id_a, id_b):
     return hash(id_a) ^ hash(id_b)

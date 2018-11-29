@@ -63,10 +63,12 @@ to file. Takes in a list of weights corresponding to the metrics array above.
 def calculate_metric(congress, chamber, weights):
     filename = str(congress) + '_' + chamber + '.csv'
     data = from_csv(filename)
-    pairs = [Pair(None, None, tup) for tup in data]
+    pairs = [Pair(None, None, None, None, tup) for tup in data]
     metric_list = [metric(pairs) for metric in metrics]
     final_metric_values = weighted_metric(pairs, metric_list, weights)
     new_filename = str(congress) + '_' + chamber + '_metric.csv'
-    new_header = ('member_a', 'member_b', 'metric')
-    data = [(pair.id_a, pair.id_b, metric) for pair, metric in final_metric_values.items()]
+    new_header = ('member_a_id', 'member_b_id', 'member_a_name', \
+        'member_b_name', 'metric')
+    data = [(pair.id_a, pair.id_b, pair.name_a, pair.name_b, metric) \
+        for pair, metric in final_metric_values.items()]
     to_csv(new_header, data, new_filename)

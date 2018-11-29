@@ -16,7 +16,9 @@ def get_pairs(congress, chamber):
     pairs = dict()
     for i in range(len(members)):
         for j in range(i + 1, len(members)):
-            pair = Pair(members[i]['id'], members[j]['id'])
+            pair = Pair(members[i]['id'], members[j]['id'], \
+                        members[i]['first_name'] + ' ' + members[i]['last_name'], \
+                        members[j]['first_name'] + ' ' + members[j]['last_name'])
             pairs[hash(pair)] = pair
     return pairs
 
@@ -86,10 +88,10 @@ def get_congress_vote_roll_call(congress, chamber="both"):
 
 
 """ Constructs a dictionary that maps congressmembers to how they voted on certain bills
-@Param 
+@Param
 """
-def get_member_votes(congress, chamber="both"):
-  big_boy = get_congress_vote_roll_call(congress, chamber)
+def get_member_votes(big_boy):
+  #big_boy = get_congress_vote_roll_call(congress, chamber)
 
   my_dict = {}
 
@@ -166,4 +168,6 @@ def write_pairs(congress, chamber='both'):
     #You can do further processing to the pairs here
 
     new_pairs = [v.toTuple() for k, v in pairs.items()]
-    to_csv(['member_a', 'member_b', 'votes_same', 'bills_same', 'mutual_sponsorships'], new_pairs, str(congress) + '_' + chamber)
+    to_csv(['member_a_id', 'member_b_id', 'member_a_name', 'member_b_name', \
+        'votes_same', 'bills_same', 'mutual_sponsorships'], new_pairs, \
+        str(congress) + '_' + chamber + '.csv')
