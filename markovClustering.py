@@ -3,6 +3,7 @@
 import markov_clustering as mc
 import networkx as nx
 import graphing
+from sklearn.preprocessing import normalize
 
 """ Using Markov Clustering on NetworkX graph to find clusters
 
@@ -19,8 +20,9 @@ import graphing
 def cluster(csvFileName):
     graph = graphing.createGraph(csvFileName) #get network from csv data
     matrix = nx.to_scipy_sparse_matrix(graph) #get adjacency matrix in sparse form
-
-    result = mc.run_mcl(matrix) #MCL algorithm with default parameters, inflation of 2
+    m = normalize(matrix, norm='l1', axis=0)
+    result = mc.run_mcl(m, inflation=1.2) #MCL algorithm with default parameters, inflation of 2
     # result = mc.run_mcl(matrix, inflation=1.5) #MCL algorithm with inflation of 1.5 (coarser clustering)
     clusters =  mc.get_clusters(result) #gets clusters
-    mc.draw_graph(matrix, clusters, node_size=50, with_labels=False, edge_color="silver") #display clusters
+    print(len(clusters))
+    mc.draw_graph(m, clusters, node_size=50, with_labels=False, edge_color="white") #display clusters
