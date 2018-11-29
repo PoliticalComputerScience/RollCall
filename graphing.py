@@ -11,7 +11,7 @@ def create_graph(csvFileName):
         graphyBoi.add_edge(tupleBoi[0], tupleBoi[1], distance=tupleBoi[4])
     return graphyBoi
 
-def extract_member_map(file="data/115.csv"):
+def extract_member_map(file="data/115nom.csv"):
 	"""
 	returns a dictionary from member bioguide_id's to dw_nominate tuples 
 	"""
