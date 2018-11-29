@@ -21,6 +21,7 @@ def get_json(api_url):
 
 """ Given header and list of tuples, writes to csv file <name>.csv """
 def to_csv(header, data, name):
+	name = "data/" + name
     with open(name,'w') as out:
         csv_out=csv.writer(out)
         csv_out.writerow(header)
