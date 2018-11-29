@@ -6,5 +6,5 @@ def createGraph(csvFileName):
     tupleList = utils.from_csv(csvFileName)
     graphyBoi = nx.Graph()
     for tupleBoi in tupleList:
-        graphyBoi.add_edge(tupleBoi[0],tupleBoi[1],tupleBoi[4])
+        graphyBoi.add_edge(tupleBoi[0], tupleBoi[1], distance=tupleBoi[4])
     return graphyBoi
