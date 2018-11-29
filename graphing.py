@@ -8,7 +8,7 @@ def create_graph(csvFileName):
 	tupleList = utils.from_csv(csvFileName)
     graphyBoi = nx.Graph()
     for tupleBoi in tupleList:
-        graphyBoi.add_edge(tupleBoi[0],tupleBoi[1],tupleBoi[2])
+        graphyBoi.add_edge(tupleBoi[0], tupleBoi[1], distance=tupleBoi[4])
     return graphyBoi
 
 def extract_member_map(file="data/115.csv"):
