@@ -9,19 +9,19 @@ import json, csv
 API_KEY = "npwl9Pn4rk2qFvIKOvzKbXH1AvM82Omi20tfyrFl"
 
 def get_json(api_url):
-	if not api_url:
-		return None
-	query = Request(api_url)
-	query.add_header("X-API-KEY", API_KEY)
-	res = json.loads(urlopen(query).read().decode("utf-8"))
-	if res["status"] != "OK":
-		print("invalid query: " + res["status"])
-		return None
-	return res
+    if not api_url:
+        return None
+    query = Request(api_url)
+    query.add_header("X-API-KEY", API_KEY)
+    res = json.loads(urlopen(query).read().decode("utf-8"))
+    if res["status"] != "OK":
+        print("invalid query: " + res["status"])
+        return None
+    return res
 
 """ Given header and list of tuples, writes to csv file <name>.csv """
 def to_csv(header, data, name):
-	name = "data/" + name
+    name = "data/" + name
     with open(name,'w') as out:
         csv_out=csv.writer(out)
         csv_out.writerow(header)
