@@ -1,12 +1,14 @@
 #https://github.com/GuyAllard/markov_clustering
 
+import pickle
 import markov_clustering as mc
 import networkx as nx
 import graphing
 from sklearn.preprocessing import normalize
 
 INFLATION_VALS = [i/10 for i in range(15, 26)]
-DEBUG = False
+INFL_VALS = [i / 10 for i in range(12, 23)]
+DEBUG = True
 
 """ Using Markov Clustering on NetworkX graph to find clusters
 
@@ -21,11 +23,19 @@ DEBUG = False
 
 """
 
-def cluster(csvFileName):
-    graph = graphing.createGraph(csvFileName) #get network from csv data
-    return cluster_graph(graph)
+#def cluster(csvFileName):
+#    graph = graphing.createGraph(csvFileName) #get network from csv data
+#    return cluster_graph(graph)
 
-def cluster_graph(graph):
+def cluster_graph(graph, infl):
+    matrix = nx.to_scipy_sparse_matrix(graph) #get adjacency matrix in sparse form
+    m = normalize(matrix, norm='l1', axis=1)
+    result = mc.run_mcl(m, inflation=infl) #MCL algorithm with default parameters, inflation of 2
+    # result = mc.run_mcl(matrix, inflation=1.5) #MCL algorithm with inflation of 1.5 (coarser clustering)
+    clusters =  mc.get_clusters(result) #gets clusters
+    return m, clusters, infl
+
+def opt_cluster_graph(graph):
     """
     Finds the best possible clustering of <graph> (optimized over modularity)
 
@@ -35,6 +45,7 @@ def cluster_graph(graph):
     """
     best_quality = -2
     best_clusters = None
+    best_infl = 0
     matrix = nx.to_scipy_sparse_matrix(graph) #get adjacency matrix in sparse form
     for infl in INFLATION_VALS:
         result = mc.run_mcl(matrix, inflation=infl)
@@ -49,11 +60,37 @@ def cluster_graph(graph):
         if quality > best_quality:
             best_clusters = clusters
             best_quality = quality
-    return matrix, best_clusters
+            best_infl = infl
+    return matrix, best_clusters, best_quality, best_infl
 
 def draw_clustering(matrix, clusters):
-    mc.draw_graph(matrix, clusters, node_size=50, with_labels=False, edge_color="silver") #display clusters
+    mc.draw_graph(matrix, clusters, node_size=1, with_labels=False, edge_color="white") #display clusters
 
 if __name__ == "__main__":
-    g = graphing.create_dw_graph()
-    matrix, clusters = cluster_graph(g)
+    congress = 114
+    g = graphing.create_graph("naive_" + str(congress) +"_house_metric.csv")#graphing.create_graph('111_house_metric.csv')
+    #for infl in INFL_VALS:
+    #    print("graphing incl: " + str(infl))
+    infl = INFL_VALS[0]
+    m, c, i = cluster_graph(g, 1.2)
+    #i = 1.25
+    with open(str(i) + 'naive_' + str(congress) + '_cluster', 'wb') as outfile:
+        pickle.dump({'matrix': m, 'clusters': c, 'infl': i}, outfile)
+    with open(str(i) + 'naive_' + str(congress) + '_cluster', 'rb') as infile:
+        d = pickle.load(infile)
+    draw_clustering(d['matrix'], d['clusters'])
+    #matrix, clusters = cluster_graph(g)
+    #draw_clustering(matrix, clusters)
+    """print(len([e for e in g.edges()]))
+    lst = [e for e in g.edges(data=True)]
+    lst.sort(key=lambda x:x[2]['weight'])
+    for i in range(int(len(lst)/2)):
+        g.remove_edge(lst[i][0], lst[i][1])
+    print(len([e for e in g.edges()]))
+    matrix, clusters, best_quality, best_infl = opt_cluster_graph(g)#opt_cluster_graph(g)
+    with open('weighted_111_opt_cluster', 'wb') as outfile:
+        pickle.dump({'matrix': matrix, 'clusters': clusters, 'best_quality': best_quality, 'best_infl': best_infl}, outfile)
+    with open('weighted_111_opt_cluster', 'rb') as infile:
+        d = pickle.load(infile)
+    draw_clustering(d['matrix'], d['clusters'])
+    print(d['clusters'])"""

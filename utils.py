@@ -29,8 +29,9 @@ def to_csv(header, data, name):
 
 """ Reads a csv and returns a list of tuples. """
 def from_csv(filename):
+    name = "data/" + filename
     data = []
-    with open(filename, 'r') as f:
+    with open(name, 'r') as f:
         reader = csv.reader(f)
         data = list(reader)
     return data[1:] #removes header

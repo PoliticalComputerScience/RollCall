@@ -171,3 +171,12 @@ def write_pairs(congress, chamber='both'):
     to_csv(['member_a_id', 'member_b_id', 'member_a_name', 'member_b_name', \
         'votes_same', 'bills_same', 'mutual_sponsorships'], new_pairs, \
         str(congress) + '_' + chamber + '.csv')
+
+if __name__ == "__main__":
+    sessions = [109, 110, 112, 113, 114, 115]
+    for session in sessions[4:]:
+        print('Session: ' + str(session))
+        try:
+            write_pairs(session, 'house')
+        except KeyError:
+            print("key error")

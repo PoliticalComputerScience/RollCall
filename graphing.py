@@ -13,7 +13,7 @@ def create_graph(csvFileName):
 
 def extract_member_map(file="data/115nom.csv"):
     """
-    returns a dictionary from member bioguide_id's to dw_nominate tuples 
+    returns a dictionary from member bioguide_id's to dw_nominate tuples
     """
     f = open(file, "r")
     csv_reader = csv.DictReader(f)
@@ -39,11 +39,16 @@ def create_dw_graph():
             if memb1 != memb2:
                 scores1, scores2 = member_map[memb1], member_map[memb2]
                 dist = euclid(scores1,scores2)
-                if dist != 0:
+                #weight = 1/(1 + dist)
+                if (dist != 0):
                     weight = 1/dist
                 else:
-                    weight = 1/(2*(.001**2))
+                    weight = 1/(.001**2)
                 #if weight > .5:
                 g.add_edge(memb1, memb2, weight=weight)
+    """minn = 1/(1+sqrt(2)*2)
+    maxx = 1 - minn
+    for u, v, d in g.edges(data=True):
+        d['weight'] -= minn
+        d['weight'] /= maxx"""
     return g
-

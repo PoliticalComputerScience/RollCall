@@ -60,15 +60,22 @@ metrics = [naive_metric, sponsorship_metric]
 Calculates metric and writes a list of tuples (member_a, member_b, metric)
 to file. Takes in a list of weights corresponding to the metrics array above.
 """
-def calculate_metric(congress, chamber, weights):
+def calculate_metric(congress, chamber, metric_name, weights):
     filename = str(congress) + '_' + chamber + '.csv'
     data = from_csv(filename)
     pairs = [Pair(None, None, None, None, tup) for tup in data]
     metric_list = [metric(pairs) for metric in metrics]
     final_metric_values = weighted_metric(pairs, metric_list, weights)
-    new_filename = str(congress) + '_' + chamber + '_metric.csv'
+    new_filename = metric_name + '_' + str(congress) + '_' + chamber + '_metric.csv'
     new_header = ('member_a_id', 'member_b_id', 'member_a_name', \
         'member_b_name', 'metric')
     data = [(pair.id_a, pair.id_b, pair.name_a, pair.name_b, metric) \
         for pair, metric in final_metric_values.items()]
     to_csv(new_header, data, new_filename)
+
+if __name__ == "__main__":
+    #calculate_metric(111, 'house', 'naive', (1, 0))
+    sessions = [109, 110, 112, 113, 114, 115]
+    for session in sessions[4:5]:
+        print(session)
+        calculate_metric(session, 'house', 'naive', (1, 0))
