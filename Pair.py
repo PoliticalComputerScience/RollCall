@@ -8,7 +8,13 @@ keys = ['votes_same', 'votes_total', 'mutual_sponsorships']
 
 class Pair:
 
-    def __init__(self, id1, id2, name_1, name_2, tup=None):
+    """
+        If a tuple is passed in, the class members are based off of the tuple.
+        Otherwise, class members are based on the other arguments. The names
+        are optional arguments in case you want to create a dummy Pair using
+        just the id's (which is what the hash is based on).
+    """
+    def __init__(self, id1, id2, name_1=None, name_2=None, tup=None):
         if not tup: #create Pair directly
             self.id_a = id1
             self.id_b = id2

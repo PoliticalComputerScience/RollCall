@@ -19,19 +19,19 @@ def get_json(api_url):
         return None
     return res
 
-""" Given header and list of tuples, writes to csv file <name>.csv """
-def to_csv(header, data, name):
-    name = "data/" + name
-    with open(name,'w') as out:
+""" Given header and list of tuples, writes to csv file data/<filename>. """
+def to_csv(header, data, filename):
+    filename = "data/" + filename
+    with open(filename,'w') as out:
         csv_out=csv.writer(out)
         csv_out.writerow(header)
         csv_out.writerows(data)
 
-""" Reads a csv and returns a list of tuples. """
+""" Reads a csv from data/<filename> and returns a list of tuples. """
 def from_csv(filename):
-    name = "data/" + filename
+    filename = "data/" + filename
     data = []
-    with open(name, 'r') as f:
+    with open(filename, 'r') as f:
         reader = csv.reader(f)
         data = list(reader)
     return data[1:] #removes header

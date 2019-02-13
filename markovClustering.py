@@ -28,6 +28,9 @@ DEBUG = True
 #    return cluster_graph(graph)
 
 def cluster_graph(graph, infl):
+    """
+    A naive markov clustering based only on inflation value.
+    """
     matrix = nx.to_scipy_sparse_matrix(graph) #get adjacency matrix in sparse form
     m = normalize(matrix, norm='l1', axis=1)
     result = mc.run_mcl(m, inflation=infl) #MCL algorithm with default parameters, inflation of 2
@@ -64,33 +67,23 @@ def opt_cluster_graph(graph):
     return matrix, best_clusters, best_quality, best_infl
 
 def draw_clustering(matrix, clusters):
-    mc.draw_graph(matrix, clusters, node_size=1, with_labels=False, edge_color="white") #display clusters
+    mc.draw_graph(matrix, clusters, node_size=4, with_labels=False, edge_color="white") #display clusters
 
 if __name__ == "__main__":
-    congress = 114
-    g = graphing.create_graph("naive_" + str(congress) +"_house_metric.csv")#graphing.create_graph('111_house_metric.csv')
+    congress = 115
+
+    g = graphing.create_dw_graph()#graphing.create_graph("naive_" + str(congress) +"_house_metric.csv")#graphing.create_graph('111_house_metric.csv')
     #for infl in INFL_VALS:
     #    print("graphing incl: " + str(infl))
     infl = INFL_VALS[0]
-    m, c, i = cluster_graph(g, 1.2)
-    #i = 1.25
-    with open(str(i) + 'naive_' + str(congress) + '_cluster', 'wb') as outfile:
-        pickle.dump({'matrix': m, 'clusters': c, 'infl': i}, outfile)
-    with open(str(i) + 'naive_' + str(congress) + '_cluster', 'rb') as infile:
-        d = pickle.load(infile)
-    draw_clustering(d['matrix'], d['clusters'])
-    #matrix, clusters = cluster_graph(g)
-    #draw_clustering(matrix, clusters)
-    """print(len([e for e in g.edges()]))
     lst = [e for e in g.edges(data=True)]
     lst.sort(key=lambda x:x[2]['weight'])
     for i in range(int(len(lst)/2)):
         g.remove_edge(lst[i][0], lst[i][1])
-    print(len([e for e in g.edges()]))
-    matrix, clusters, best_quality, best_infl = opt_cluster_graph(g)#opt_cluster_graph(g)
-    with open('weighted_111_opt_cluster', 'wb') as outfile:
-        pickle.dump({'matrix': matrix, 'clusters': clusters, 'best_quality': best_quality, 'best_infl': best_infl}, outfile)
-    with open('weighted_111_opt_cluster', 'rb') as infile:
-        d = pickle.load(infile)
-    draw_clustering(d['matrix'], d['clusters'])
-    print(d['clusters'])"""
+    m, c, i = cluster_graph(g, 1.2)#cluster_graph(g, 1.2)
+    #i = 1.25
+    #with open(str(i) + 'naive_' + str(congress) + '_cluster', 'wb') as outfile:
+        #pickle.dump({'matrix': m, 'clusters': c, 'infl': i}, outfile)
+    #with open(str(i) + 'naive_' + str(congress) + '_cluster', 'rb') as infile:
+        #d = pickle.load(infile)
+    draw_clustering(m, c)
