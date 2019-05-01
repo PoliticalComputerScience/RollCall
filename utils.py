@@ -46,7 +46,7 @@ def get_data(api_url):
 def validate_congress(congress_num):
     if type(congress_num) != int:
         raise TypeError(str(congress_num) + " not supported, congresses must be of type int")
-    if congress_num < 105 or congress_num > CURR_CONGRESS: 
+    if congress_num < 105 or congress_num > CURR_CONGRESS:
         raise RuntimeError(str(congress_num) + " is not a valid congress number")
 
 def validate_slug(slug):
@@ -64,5 +64,16 @@ def format_slug(slug):
 def validate_chamber(chamber):
     if type(chamber) != str:
         raise TypeError(str(chamber) + " not supported, chambers must be of type str")
-    if chamber not in CHAMBERS: 
+    if chamber not in CHAMBERS:
         raise RuntimeError(chamber + " is not a valid congress number, chamber must be one of [both, house, senate]")
+
+def ind_to_node_map(graph):
+    ind = 0
+    ind_to_node = {}
+    for n in graph.nodes:
+        ind_to_node[ind] = n
+        ind += 1
+    return ind_to_node
+
+
+

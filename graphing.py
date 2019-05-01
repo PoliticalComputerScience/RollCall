@@ -2,6 +2,7 @@ import networkx as nx
 import utils
 import csv
 from math import sqrt
+import matplotlib.pyplot as plt
 
 """ Creates a list of tuples of voting data from a CSV and creates a NetworkX graph with the according nodes and edge weights """
 def create_graph(csvFileName):
@@ -25,6 +26,11 @@ def extract_member_map(file="data/115nom.csv"):
     f.close()
     return member_map
 
+def create_naive_graph(congress, chamber):
+    assert chamber in utils.CHAMBERS
+    path = "naive_{}_{}_metric.csv".format(congress, chamber)
+    return create_graph(path)
+
 def create_dw_graph():
     """
     creates a graph with dw_nominate similarity scores
@@ -32,8 +38,6 @@ def create_dw_graph():
     g = nx.Graph()
     euclid = lambda pair1,pair2: sqrt((pair1[0]-pair2[0])**2 + (pair1[1]-pair2[1])**2)
     member_map = extract_member_map()
-    for memb in member_map:
-        g.add_node
     for memb1 in member_map:
         for memb2 in member_map:
             if memb1 != memb2:
@@ -52,3 +56,8 @@ def create_dw_graph():
         d['weight'] -= minn
         d['weight'] /= maxx"""
     return g
+
+def plot_clustering(clustering, g):
+    values = [clustering.get(node) for node in g.nodes]
+    nx.draw_spring(g, cmap=plt.get_cmap('jet'), node_color = values, node_size=30, with_labels=False)
+    plt.show()

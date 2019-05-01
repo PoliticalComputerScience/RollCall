@@ -126,8 +126,8 @@ def get_member_votes(big_boy):
 
 """
     Constructs a set of all combinations of 2 members, storing:
-		1) How many bills they voted the same on
-		2) How many bills they both voted on
+        1) How many bills they voted the same on
+        2) How many bills they both voted on
     Should call on either Senate or House, both may not be entirely useful.
     Returns a list of tuples (member0, member1, votes_same, bills_same)
 """
@@ -177,7 +177,7 @@ def write_pairs(congress, chamber='both'):
     to_csv(['member_a_id', 'member_b_id', 'member_a_name', 'member_b_name', \
         'votes_same', 'bills_same', 'mutual_sponsorships'], new_pairs, \
         str(congress) + '_' + chamber + '.csv')
-
+"""
 if __name__ == "__main__":
     sessions = [109]
     for session in sessions:
@@ -186,3 +186,4 @@ if __name__ == "__main__":
             write_pairs(session, 'senate')
         except KeyError:
             print("key error")
+"""

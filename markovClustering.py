@@ -51,12 +51,7 @@ def opt_cluster_graph(graph):
     best_infl = 0
     matrix = nx.to_scipy_sparse_matrix(graph) #get adjacency matrix in sparse form
     for infl in INFLATION_VALS:
-        result = mc.run_mcl(matrix, inflation=infl)
-        if DEBUG:
-            print("mcl run")
-        clusters = mc.get_clusters(result)
-        if DEBUG:
-            print("clusters found")
+        m, clusters, _ = cluster_graph(graph, infl)
         quality = mc.modularity(matrix, clusters) #measure of quality of clustering
         if DEBUG:
             print("inflation: " + str(infl) + ", expansion: " + str(expn) + ", modularity: " + str(quality))
@@ -71,8 +66,9 @@ def draw_clustering(matrix, clusters):
 
 if __name__ == "__main__":
     congress = 115
-
-    g = graphing.create_dw_graph()#graphing.create_graph("naive_" + str(congress) +"_house_metric.csv")#graphing.create_graph('111_house_metric.csv')
+    chamber = "house"
+    metric = "naive"
+    g = graphing.create_graph("{}_{}_{}_metric.csv".format(metric, congress, chamber))
     #for infl in INFL_VALS:
     #    print("graphing incl: " + str(infl))
     infl = INFL_VALS[0]
@@ -86,4 +82,4 @@ if __name__ == "__main__":
         #pickle.dump({'matrix': m, 'clusters': c, 'infl': i}, outfile)
     #with open(str(i) + 'naive_' + str(congress) + '_cluster', 'rb') as infile:
         #d = pickle.load(infile)
-    draw_clustering(m, c)
+    #draw_clustering(m, c)

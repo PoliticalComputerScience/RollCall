@@ -68,7 +68,7 @@ class Bill(Endpoint):
         return "<Bill slug: {}, subject: {}, congress num: {}, title: {}>".format(self.get_slug(), self.get_subject(), self.get_congress(), short_title)
 
     def __eq__(self, other):
-    	return self.slug == other.slug and self.congress == other.congress
+        return self.slug == other.slug and self.congress == other.congress
 
     def get_subject(self):
         """
@@ -155,9 +155,11 @@ class Bill(Endpoint):
         self.subjects = ret
         return ret
 
+class Vote(Endpoint):
+    
+
 
 if __name__ == '__main__':
     bills = Bill.get_recent_bills(action='passed')
     for bill in bills:
         print(bill)
-
