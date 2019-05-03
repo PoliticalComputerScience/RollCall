@@ -61,3 +61,11 @@ def plot_clustering(clustering, g):
     values = [clustering.get(node) for node in g.nodes]
     nx.draw_spring(g, cmap=plt.get_cmap('jet'), node_color = values, node_size=30, with_labels=False)
     plt.show()
+
+def pad_graph(g):
+    for v1 in g.nodes:
+        for v2 in g.nodes:
+            if v1 == v2:
+                continue
+            if not g.has_edge(v1,v2):
+                g.add_edge(v1,v2, weight=0)

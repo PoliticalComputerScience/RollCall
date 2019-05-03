@@ -81,10 +81,11 @@ def calculate_metric(congress, chamber, metric_name, weights):
     data = [(pair.id_a, pair.id_b, pair.name_a, pair.name_b, metric) \
         for pair, metric in final_metric_values.items()]
     to_csv(new_header, data, new_filename)
-
+"""
 if __name__ == "__main__":
     #calculate_metric(111, 'house', 'naive', (1, 0))
     sessions = [109, 110, 112, 113, 114, 115]
     for session in sessions[5:]:
         print(session)
         calculate_metric(session, 'house', 'naive', (1, 0))
+"""
